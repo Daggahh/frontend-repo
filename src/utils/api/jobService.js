@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://backend-repo-1-x2b1.onrender.com";
+const API_URL = "https://backend-repo-1-x2b1.onrender.com/api/jobs";
 
 // Add salary range
 export const addSalaryRangeToAPI = async (jobId, salaryRange) => {

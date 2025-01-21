@@ -111,7 +111,7 @@ const Overview = ({
       setLoading(true);
       try {
         const response = await axios.get(
-          "https://backend-repo-1-x2b1.onrender.com"
+          "https://backend-repo-1-x2b1.onrender.com/api/applications/weekly-progress"
         );
         const { applicationsMovedToApplied, totalApplications } = response.data;
 
@@ -234,7 +234,7 @@ const Overview = ({
     setLoadingData(true);
     try {
       const response = await axios.get(
-        "https://backend-repo-1-x2b1.onrender.com",
+        "https://backend-repo-1-x2b1.onrender.com/api/jobs/pipeline-stats",
         {
           params: {
             startDate: startDate.format("YYYY-MM-DD"),

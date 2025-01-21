@@ -37,7 +37,7 @@ const ResetPassword = () => {
     try {
       // Make POST request to reset password
       const response = await axios.post(
-        "https://backend-repo-1-x2b1.onrender.com",
+        "https://backend-repo-1-x2b1.onrender.com/api/password/reset-password",
         {
           token,
           newPassword,
