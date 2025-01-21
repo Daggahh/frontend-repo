@@ -5,6 +5,7 @@ import MyApplication from "./Pages/MyApplication";
 import Contact from "./Pages/Contact";
 import Account from "./Pages/Account/Account";
 import Overview from "./Pages/Overview/Overview";
+// import ResumeBuilder from "./Pages/ResumeBuilder";
 // import SupportCenter from "./Pages/SupportCenter";
 const JobTrackerSection0 = lazy(() =>
   import("./Pages/MyApplication/JobTrackerSection0")
@@ -103,7 +104,7 @@ const MainBoard = ({ isSideDashOpen }) => {
                   />
                 }
               />
-              {/* <Route path="resume-builder" element={<ResumeBuilder />} />  */}
+              {/* <Route path="resume-builder" element={<ResumeBuilder />} /> */}
               <Route
                 path="my-applications/*"
                 element={

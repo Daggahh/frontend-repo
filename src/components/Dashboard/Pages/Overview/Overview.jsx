@@ -111,7 +111,7 @@ const Overview = ({
       setLoading(true);
       try {
         const response = await axios.get(
-          "http://localhost:8080/api/applications/weekly-progress"
+          "https://backend-repo-1-x2b1.onrender.com"
         );
         const { applicationsMovedToApplied, totalApplications } = response.data;
 
@@ -234,7 +234,7 @@ const Overview = ({
     setLoadingData(true);
     try {
       const response = await axios.get(
-        "http://localhost:8080/api/jobs/pipeline-stats",
+        "https://backend-repo-1-x2b1.onrender.com",
         {
           params: {
             startDate: startDate.format("YYYY-MM-DD"),
@@ -371,7 +371,11 @@ const Overview = ({
               className="p-2 rounded-md border border-1-[#111313] relative cursor-pointer"
               onClick={() => setShowMissedDetails(!showMissedDetails)}
             >
-              <Badge size="small" count={missedInterviews.length} offset={[0, 0]}>
+              <Badge
+                size="small"
+                count={missedInterviews.length}
+                offset={[0, 0]}
+              >
                 <svg
                   stroke="currentColor"
                   fill="currentColor"
@@ -882,9 +886,7 @@ const Overview = ({
                     </div>
                   </div>
 
-                  <div
-                    className="summary-module-wrapper followups-container rounded-tl-xl rounded-bl-xl rounded-tr-none rounded-br-none overflow-y-auto"
-                  >
+                  <div className="summary-module-wrapper followups-container rounded-tl-xl rounded-bl-xl rounded-tr-none rounded-br-none overflow-y-auto">
                     <div className="module-header flex mb-4 justify-between flex-col">
                       <div className="module-heading">
                         <h2 className="h3 tracking-normal font-semibold leading-[1.2]">

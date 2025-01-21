@@ -27,12 +27,12 @@ export const SideDashData = [
     icon: <TbSmartHome />,
     path: "/dashboard/my-applications",
   },
-  {
-    id: 4,
-    title: "Contacts",
-    icon: <TbSmartHome />,
-    path: "/dashboard/contacts",
-  },
+  // {
+  //   id: 4,
+  //   title: "Contacts",
+  //   icon: <TbSmartHome />,
+  //   path: "/dashboard/contacts",
+  // },
   {
     id: 5,
     title: "Archived Jobs",

@@ -4,7 +4,7 @@ import axios from "axios";
 import { getValidToken } from "./tokenHelper";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:8080/api",
+  baseURL: "https://backend-repo-1-x2b1.onrender.com",
   headers: {
     "Content-Type": "application/json",
   },

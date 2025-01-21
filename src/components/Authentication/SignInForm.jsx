@@ -36,7 +36,7 @@ const SignInForm = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/auth/login",
+        "https://backend-repo-1-x2b1.onrender.com",
         formData
       );
 
@@ -63,7 +63,7 @@ const SignInForm = () => {
             "Token stored after sign-in:",
             localStorage.getItem("authtoken")
           );
-          navigate("/dashboard"); // Redirect to the dashboard
+          navigate("/dashboard/home"); // Redirect to the dashboard
         } else {
           console.error(
             "Token or refresh token missing in the server response."

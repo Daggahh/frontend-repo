@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/api/user";
+const API_URL = "https://backend-repo-1-x2b1.onrender.com";
 
 export const updateUserProfile = async (userData) => {
   try {

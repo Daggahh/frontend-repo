@@ -46,7 +46,7 @@ const SignUpForm = () => {
     // console.log("Registration successful with:", formData); // For testing
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/auth/register",
+        "https://backend-repo-1-x2b1.onrender.com",
         formData
       );
 

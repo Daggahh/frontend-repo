@@ -30,7 +30,7 @@ const ForgetPassword = () => {
     try {
       // Make POST request to backend
       const response = await axios.post(
-        "http://localhost:8080/api/password/request-reset",
+        "https://backend-repo-1-x2b1.onrender.com",
         {
           email,
         }
