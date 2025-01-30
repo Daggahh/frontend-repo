@@ -45,7 +45,7 @@ const Account = () => {
 
   return (
     <div className="bg-[#f9fafb p-0">
-      <div className="max-w-full mx-auto bg-white p-6 rounded-lg shadow-md">
+      <div className="max-w-full mx-auto bg-white p-6 rounded-lg shadow-md mt-8">
         {/* Tabs Navigation */}
         <nav className="flex border-b border-gray-300 pb-3">
           <button className="text-[#111313] font-bold mr-6">My Account</button>

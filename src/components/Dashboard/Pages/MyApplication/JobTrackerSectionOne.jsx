@@ -31,7 +31,7 @@ import JobListingDrawer, {
 } from "./JobTrackerSectOne/ExtendedSections";
 import AntdTracker from "./JobTrackerSectOne/AntdTracker";
 import "./JobTrackerSectOne/JobTrackerSectionOne.css";
-import { useOutletContext } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 import {
   updateJobDates,
   updateJobStatusInAPI,
@@ -703,12 +703,14 @@ const JobTrackerSectionOne = () => {
               style={{ transform: "none", transformOrigin: "50% 50% 0px" }}
             >
               <div className="drawer-dismiss-container">
-                <Button
-                  type="link"
-                  size="large"
-                  icon={<RightCircleOutlined />}
-                  className="mt-2"
-                />
+                <Link to="/dashboard/my-applications/job-trackerv2">
+                  <Button
+                    type="link"
+                    size="large"
+                    icon={<RightCircleOutlined />}
+                    className="mt-2"
+                  />
+                </Link>
               </div>
 
               <div

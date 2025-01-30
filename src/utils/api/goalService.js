@@ -1,6 +1,7 @@
 import axios from "axios";
+import { BASE_API_URL } from "../constant";
 
-const API_URL = "https://backend-repo-1-x2b1.onrender.com/api/goals";
+const API_URL = `${BASE_API_URL}/api/goals`;
 
 export const createGoal = async (goalData) => {
   const token = localStorage.getItem("authtoken");

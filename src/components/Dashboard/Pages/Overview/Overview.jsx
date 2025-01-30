@@ -3,16 +3,12 @@ import "./Overview.css";
 import { StyleProvider } from "@ant-design/cssinjs";
 import AntJobModal from "../MyApplication/ActionButtons/AntJobModal";
 import { FaPlus, FaPlusCircle } from "react-icons/fa";
-import { Badge, DatePicker, Divider, Modal, notification, Spin } from "antd";
+import { Badge, Divider, Spin, message } from "antd";
 import { MailOutline, RadarOutlined, StarOutline } from "@mui/icons-material";
 import JobjottModal from "./jobjottModal.jsx";
 import GoalsModal from "./goalsModal.jsx";
 import WeekGoalModal from "./weekGoalModal.jsx";
-import {
-  BellFilled,
-  EditOutlined,
-  InfoCircleOutlined,
-} from "@ant-design/icons";
+import { EditOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { getGoals } from "../../../../utils/api/goalService.js";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -23,6 +19,7 @@ import { Tooltip as AntdTooltip } from "antd";
 import { Tooltip as ChartTooltip } from "recharts";
 import { fetchJobsFromAPI } from "../../../../utils/api/jobService.js";
 import InterviewModal from "./interviewModal.jsx";
+import { BASE_API_URL } from "../../../../utils/constant.js";
 
 const Overview = ({
   modalOpen,
@@ -36,28 +33,37 @@ const Overview = ({
   const [goalModalOpen, setGoalModalOpen] = useState(false);
   const [goal, setGoal] = useState(null);
   const [currencies, setCurrencies] = useState([]);
-  const selectedGoal = goal?._id;
-  const widthValue = "100%";
-  const gutterValue = "0";
   const [progress, setProgress] = useState(0);
   const [totalApplications, setTotalApplications] = useState(0);
   const [weekGoal, setWeekGoal] = useState(5);
   const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [inputGoal, setInputGoal] = useState(weekGoal);
-
   const [data, setData] = useState([]);
   const [totalJobs, setTotalJobs] = useState(0);
   const [loadingData, setLoadingData] = useState(false);
-  const [dateRange, setDateRange] = useState([
-    dayjs().subtract(1, "month"),
-    dayjs(),
-  ]);
-  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"]; // Colors for pie chart
-
+  const [dateRange, setDateRange] = useState({
+    startDate: null,
+    endDate: null,
+  });
   const [modalNotifOpen, setModalNotifOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
+  const [missedInterviews, setMissedInterviews] = useState([]);
+  const [upcomingInterviews, setUpcomingInterviews] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [weekDates, setWeekDates] = useState([]);
+  const [jobDetails, setJobDetails] = useState([]);
+  const notificationRef = useRef(null);
 
+  //CONSTANTS
+  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"]; // Colors for pie chart
+  const selectedGoal = goal?._id;
+  const widthValue = "100%";
+  const gutterValue = "0";
+
+  //EFFECTS
+  //USER FUNCTIONALITY
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) {
@@ -65,6 +71,7 @@ const Overview = ({
     }
   }, []);
 
+  // GOALS FUNCTIONALITY
   // Fetch goals on component mount
   useEffect(() => {
     const fetchGoals = async () => {
@@ -81,6 +88,200 @@ const Overview = ({
     fetchGoals();
   }, []);
 
+  // WEEKLY PROGRESS FUNCTIONALITY
+  useEffect(() => {
+    // Fetch the number of job applications moved to "Applied" stage in the last week
+    const fetchWeeklyProgress = async () => {
+      setLoading(true);
+      const token = localStorage.getItem("authtoken");
+      try {
+        const response = await axios.get(
+          `${BASE_API_URL}/api/applications/weekly-progress`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const { applicationsMovedToApplied, totalApplications } = response.data;
+
+        setProgress(applicationsMovedToApplied);
+        setTotalApplications(totalApplications);
+      } catch (error) {
+        console.error("Error fetching weekly progress", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWeeklyProgress();
+  }, []);
+
+  // PIPELINE FUNCTIONALITY
+  useEffect(() => {
+    fetchPipelineData();
+  }, []);
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const fetchedJobs = await fetchJobsFromAPI();
+        setJobs(fetchedJobs);
+      } catch (error) {
+        console.error("Error fetching jobs:", error);
+        message.error("Unable to fetch jobs. Please try again later.");
+      }
+    };
+
+    fetchJobs();
+  }, []);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const token = localStorage.getItem("authtoken");
+        const response = await axios.get(`${BASE_API_URL}/api/notifications`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        console.log(response.data);
+
+        // Ensure backend filters only unread & undeleted, but re-filter if needed
+        const filteredNotifications = response.data.filter(
+          (n) => !n.isRead && !n.isDeleted // Ensure filtering on frontend too
+        );
+
+        // Filter notifications based on type
+        setMissedInterviews(
+          filteredNotifications.filter((n) => n.type === "missed")
+        );
+        setUpcomingInterviews(
+          filteredNotifications.filter((n) => n.type === "upcoming")
+        );
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
+
+  // Hook to detect click outside the notification dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target)
+      ) {
+        setShowNotifications(false); // Close dropdown when clicking outside
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Handle missed and upcoming interviews
+  useEffect(() => {
+    const now = new Date();
+    const missed = [];
+    const upcoming = [];
+
+    // Iterate through jobs to classify them as missed or upcoming
+    jobs.forEach((job) => {
+      const interviewDate = new Date(job.interview?.interviewDate);
+
+      // Check if interview details have changed or are new
+      if (job.interview?.interviewDate) {
+        const diffInDays = (interviewDate - now) / (1000 * 60 * 60 * 24);
+
+        // Classify missed interviews
+        if (interviewDate < now) {
+          missed.push(job);
+        } // Classify upcoming interviews (within 2 days)
+        else if (diffInDays <= 2) {
+          upcoming.push(job);
+        }
+      }
+    });
+
+    // Update missed and upcoming interviews state
+    setMissedInterviews(missed);
+    setUpcomingInterviews(upcoming);
+
+    // Send notifications to the backend
+    const sendNotifications = async () => {
+      const token = localStorage.getItem("authtoken");
+      try {
+        await axios.post(
+          `${BASE_API_URL}/api/notifications/send`,
+          {
+            missed,
+            upcoming,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+      } catch (error) {
+        console.error("Error sending notifications:", error);
+      }
+    };
+
+    if (missed.length || upcoming.length) sendNotifications();
+  }, [jobs]);
+
+  const handleDropdownOpen = async () => {
+    setShowNotifications(!showNotifications);
+
+    // Mark notifications as read when dropdown opens
+    if (!showNotifications) {
+      const token = localStorage.getItem("authtoken");
+      try {
+        await axios.post(
+          `${BASE_API_URL}/api/notifications/mark-read`,
+          {},
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        // Update UI immediately
+        setMissedInterviews((prev) =>
+          prev.map((notif) => ({ ...notif, read: true }))
+        );
+        setUpcomingInterviews((prev) =>
+          prev.map((notif) => ({ ...notif, read: true }))
+        );
+      } catch (error) {
+        console.error("Error marking notifications as read:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    // Generate current week dates
+    const today = new Date();
+    const startOfWeek = new Date(
+      today.setDate(today.getDate() - today.getDay())
+    );
+
+    const week = Array.from({ length: 7 }, (_, index) => {
+      const date = new Date(startOfWeek);
+      date.setDate(startOfWeek.getDate() + index);
+      return date;
+    });
+    setWeekDates(week);
+  }, []);
+
+  // Trigger filtering when jobs are updated or on mount
+  useEffect(() => {
+    if (jobs.length > 0) {
+      handleDateSelect(new Date());
+    }
+  }, [jobs]); // Runs whenever the jobs array is updated
+
+  //HELPER FUNCTIONS
   // Function to handle the opening of the modal
   const handleEditGoal = () => {
     setGoalModalOpen(true);
@@ -104,28 +305,6 @@ const Overview = ({
     }
     return "Next Career Goal: Land a new job";
   };
-
-  useEffect(() => {
-    // Fetch the number of job applications moved to "Applied" stage in the last week
-    const fetchWeeklyProgress = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get(
-          "https://backend-repo-1-x2b1.onrender.com/api/applications/weekly-progress"
-        );
-        const { applicationsMovedToApplied, totalApplications } = response.data;
-
-        setProgress(applicationsMovedToApplied);
-        setTotalApplications(totalApplications);
-      } catch (error) {
-        console.error("Error fetching weekly progress", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchWeeklyProgress();
-  }, []);
 
   const handleEdit = () => {
     setInputGoal(weekGoal);
@@ -187,6 +366,7 @@ const Overview = ({
     message = <p>You achieved your weekly goal! 🎉</p>;
   }
 
+  // RECENT APPLICATIONS FUNCTIONALITY
   const formatDate = (date) => {
     const today = new Date().toDateString();
     const jobDate = new Date(date).toDateString();
@@ -201,21 +381,6 @@ const Overview = ({
     });
   };
 
-  useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        const fetchedJobs = await fetchJobsFromAPI();
-        setJobs(fetchedJobs);
-      } catch (error) {
-        console.error("Error fetching jobs:", error);
-        message.error("Unable to fetch jobs. Please try again later.");
-      } finally {
-      }
-    };
-
-    fetchJobs();
-  }, []);
-
   // Group jobs by date
   const groupedJobs = jobs.reduce((acc, job) => {
     const date = formatDate(job.createdAt);
@@ -226,27 +391,22 @@ const Overview = ({
     return acc;
   }, {});
 
-  useEffect(() => {
-    fetchPipelineData(dateRange[0], dateRange[1]);
-  }, [dateRange]);
-
-  const fetchPipelineData = async (startDate, endDate) => {
+  const fetchPipelineData = async () => {
     setLoadingData(true);
+    const token = localStorage.getItem("authtoken");
+
     try {
       const response = await axios.get(
-        "https://backend-repo-1-x2b1.onrender.com/api/jobs/pipeline-stats",
+        `${BASE_API_URL}/api/jobs/pipeline-stats`,
         {
-          params: {
-            startDate: startDate.format("YYYY-MM-DD"),
-            endDate: endDate.format("YYYY-MM-DD"),
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      const { pipelineData, totalJobs } = response.data;
+      const { pipelineData, totalJobs, startDate, endDate } = response.data;
 
       if (pipelineData.length === 0) {
-        message.info("No jobs found for the selected date range.");
+        message.info("No jobs found");
       }
 
       setData(
@@ -257,6 +417,7 @@ const Overview = ({
         }))
       );
       setTotalJobs(totalJobs);
+      setDateRange({ startDate, endDate });
     } catch (error) {
       console.error("Error fetching pipeline data:", error);
       message.error("Failed to load data.");
@@ -265,92 +426,50 @@ const Overview = ({
     }
   };
 
-  const onDateChange = (dates) => {
-    if (dates && dates[0] && dates[1]) {
-      setDateRange(dates);
-    } else {
-      message.warning("Please select a valid date range.");
-    }
-  };
-
+  // UPCOMING DATES AND NOTIFICATIONS FUNCTIONALITY
   const handleViewSchedule = (job) => {
     setSelectedJob(job);
     setModalNotifOpen(true);
   };
 
-  const isValidDate = (date) => {
-    return !isNaN(new Date(date).getTime());
-  };
+  const handleDateSelect = (date) => {
+    setSelectedDate(date);
 
-  const sortJobsByDate = (jobs) => {
-    return jobs
-      .filter((job) => isValidDate(job.interview?.interviewDate))
-      .sort(
-        (a, b) =>
-          new Date(a.interview.interviewDate) -
-          new Date(b.interview.interviewDate)
+    // Filter jobs based on the selected date
+    const filteredJobs = jobs.filter((job) => {
+      const jobDate = new Date(job.interview?.interviewDate);
+      return (
+        jobDate.toDateString() === date.toDateString() ||
+        new Date(job.followUpDate)?.toDateString() === date.toDateString()
       );
+    });
+
+    setJobDetails(filteredJobs.length > 0 ? filteredJobs : null);
   };
 
   const getBorderColor = (interviewDate) => {
     const now = new Date();
     const date = new Date(interviewDate);
-    const diff = (date - now) / (1000 * 60 * 60 * 24); // Difference in days
-
-    if (diff <= 3) return "border-red-500";
-    if (diff <= 7) return "border-yellow-500";
-    return "border-green-500";
+    return date < now
+      ? "border-red-500 bg-red-100"
+      : "border-green-500 bg-green-100";
   };
 
-  // const sortedJobs = sortJobsByDate(jobs);
-
-  // Hook for tracking missed interviews
-  // const useMissedInterviews = (jobs) => {
-  const [missedInterviews, setMissedInterviews] = useState([]);
-  const [shownNotifications, setShownNotifications] = useState(new Set());
-  const [showMissedDetails, setShowMissedDetails] = useState(false);
-  const notificationRef = useRef(null);
-
-  // Hook to detect click outside the notification dropdown
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        notificationRef.current &&
-        !notificationRef.current.contains(event.target)
-      ) {
-        setShowMissedDetails(false); // Close dropdown when clicking outside
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  // Track missed interviews
-  useEffect(() => {
-    const now = new Date();
-    const missed = jobs.filter(
-      (job) =>
-        job.interview?.interviewDate &&
-        new Date(job.interview.interviewDate) < now &&
-        !shownNotifications.has(job._id) // Ensure notification is shown only once
-    );
-
-    setMissedInterviews((prev) => [...prev, ...missed]);
-    missed.forEach((job) => {
-      setShownNotifications((prev) => new Set(prev).add(job._id));
-      notification.warning({
-        message: "Missed Interview",
-        description: `You missed an interview with ${job.companyName} for the position ${job.jobTitle}.`,
-        duration: 5,
+  const removeNotification = async (jobId, type) => {
+    try {
+      const token = localStorage.getItem("authtoken");
+      await axios.delete(`${BASE_API_URL}/api/notifications/${jobId}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-    });
-  }, [jobs, shownNotifications]);
-
-  const sortedJobs = sortJobsByDate(jobs);
-  // const missedInterviews = useMissedInterviews(jobs);
+      if (type === "missed") {
+        setMissedInterviews((prev) => prev.filter((n) => n.jobId !== jobId));
+      } else if (type === "upcoming") {
+        setUpcomingInterviews((prev) => prev.filter((n) => n.jobId !== jobId));
+      }
+    } catch (error) {
+      console.error("Error deleting notification:", error);
+    }
+  };
 
   return (
     <>
@@ -367,62 +486,163 @@ const Overview = ({
         </div>
         <div>
           <ul className="flex gap-4 items-center">
-            <li
-              className="p-2 rounded-md border border-1-[#111313] relative cursor-pointer"
-              onClick={() => setShowMissedDetails(!showMissedDetails)}
-            >
-              <Badge
-                size="small"
-                count={missedInterviews.length}
-                offset={[0, 0]}
+            <>
+              <li
+                className="p-2 rounded-md border border-1-[#111313] relative cursor-pointer flex items-center"
+                onClick={handleDropdownOpen}
               >
-                <svg
-                  stroke="currentColor"
-                  fill="currentColor"
-                  strokeWidth="0"
-                  viewBox="0 0 512 512"
-                  className="leading-8 text-exl cursor-pointer"
-                  height="1em"
-                  width="1em"
-                  xmlns="http://www.w3.org/2000/svg"
+                <Badge
+                  size="small"
+                  count={
+                    missedInterviews.filter((notif) => !notif.read).length +
+                    upcomingInterviews.filter((notif) => !notif.read).length
+                  }
+                  offset={[0, 0]}
                 >
-                  <path d="M440.08 341.31c-1.66-2-3.29-4-4.89-5.93-22-26.61-35.31-42.67-35.31-118 0-39-9.33-71-27.72-95-13.56-17.73-31.89-31.18-56.05-41.12a3 3 0 0 1-.82-.67C306.6 51.49 282.82 32 256 32s-50.59 19.49-59.28 48.56a3.13 3.13 0 0 1-.81.65c-56.38 23.21-83.78 67.74-83.78 136.14 0 75.36-13.29 91.42-35.31 118-1.6 1.93-3.23 3.89-4.89 5.93a35.16 35.16 0 0 0-4.65 37.62c6.17 13 19.32 21.07 34.33 21.07H410.5c14.94 0 28-8.06 34.19-21a35.17 35.17 0 0 0-4.61-37.66zM256 480a80.06 80.06 0 0 0 70.44-42.13 4 4 0 0 0-3.54-5.87H189.12a4 4 0 0 0-3.55 5.87A80.06 80.06 0 0 0 256 480z"></path>
-                </svg>{" "}
-              </Badge>
+                  <svg
+                    stroke="currentColor"
+                    fill="currentColor"
+                    strokeWidth="0"
+                    viewBox="0 0 512 512"
+                    className="leading-8 text-exl cursor-pointer"
+                    height="1em"
+                    width="1em"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path d="M440.08 341.31c-1.66-2-3.29-4-4.89-5.93-22-26.61-35.31-42.67-35.31-118 0-39-9.33-71-27.72-95-13.56-17.73-31.89-31.18-56.05-41.12a3 3 0 0 1-.82-.67C306.6 51.49 282.82 32 256 32s-50.59 19.49-59.28 48.56a3.13 3.13 0 0 1-.81.65c-56.38 23.21-83.78 67.74-83.78 136.14 0 75.36-13.29 91.42-35.31 118-1.6 1.93-3.23 3.89-4.89 5.93a35.16 35.16 0 0 0-4.65 37.62c6.17 13 19.32 21.07 34.33 21.07H410.5c14.94 0 28-8.06 34.19-21a35.17 35.17 0 0 0-4.61-37.66zM256 480a80.06 80.06 0 0 0 70.44-42.13 4 4 0 0 0-3.54-5.87H189.12a4 4 0 0 0-3.55 5.87A80.06 80.06 0 0 0 256 480z"></path>
+                  </svg>{" "}
+                </Badge>
 
-              {/* Notification Dropdown */}
-              {showMissedDetails && (
-                <div
-                  ref={notificationRef}
-                  className="absolute top-12 right-4 bg-white shadow-lg p-4 rounded-lg border w-64 z-1001"
-                >
-                  <h3 className="font-semibold mb-2">Missed Interviews</h3>
-                  {missedInterviews.length > 0 ? (
-                    <ul className="space-y-2">
-                      {missedInterviews.map((job) => (
-                        <li key={job._id} className="text-sm text-gray-700">
-                          <p>
-                            <strong>{job.jobTitle}</strong> at {job.companyName}
-                          </p>
-                          <p>
-                            <small>
-                              Missed on:{" "}
-                              {new Date(
-                                job.interview.interviewDate
-                              ).toLocaleString()}
-                            </small>
-                          </p>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-sm text-gray-500">
-                      No missed interviews.
-                    </p>
-                  )}
-                </div>
-              )}
-            </li>
+                {/* Notification Dropdown */}
+                {showNotifications && (
+                  <div
+                    ref={notificationRef}
+                    className="absolute top-[2.8rem] right-0 bg-white shadow-lg p-4 rounded-lg border z-1001 w-fit"
+                  >
+                    {missedInterviews.length + upcomingInterviews.length ===
+                    0 ? (
+                      <p className="text-[14px] text-gray-500 w-72 text-center font-semibold mb-0">
+                        No new notifications
+                      </p>
+                    ) : (
+                      <>
+                        {" "}
+                        {missedInterviews.map((job, idx) => (
+                          <React.Fragment key={job._id}>
+                            <div
+                              className={`mb-2 error flex w-96 p-3 flex-row items-center justify-start bg-[#FCE8DB] border border-solid border-[#EF665B] rounded-md shadow-[0_0px_5px_-3px_#111] relative ${
+                                idx === missedInterviews.length - 1
+                                  ? ""
+                                  : "mb-2"
+                              }`}
+                              style={{
+                                transition: "transform 0.3s ease-out",
+                                transform: "translateX(0)",
+                              }}
+                            >
+                              <span>
+                                {" "}
+                                <p className="error__title text-[14px] text-[#71192f] font-medium">
+                                  <strong>
+                                    Missed Interview @ {job.companyName}
+                                  </strong>
+                                </p>
+                                <p className="text-sm text-gray-700 font-medium">
+                                  {job.jobTitle} -{" "}
+                                  {new Date(
+                                    job.interview.interviewDate
+                                  ).toLocaleString()}
+                                </p>
+                              </span>
+
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // Find the notification that matches this job
+                                  removeNotification(job._id, "missed");
+                                }}
+                                className="absolute  top-1 right-1 hover:text-red-500 cursor-pointer"
+                              >
+                                <div className="error__close w-5 h-5 ml-auto">
+                                  <svg
+                                    height="20"
+                                    viewBox="0 0 20 20"
+                                    width="20"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <path
+                                      d="m15.8333 5.34166-1.175-1.175-4.6583 4.65834-4.65833-4.65834-1.175 1.175 4.65833 4.65834-4.65833 4.6583 1.175 1.175 4.65833-4.6583 4.6583 4.6583 1.175-1.175-4.6583-4.6583z"
+                                      fill="#71192F"
+                                    ></path>
+                                  </svg>
+                                </div>
+                              </button>
+                            </div>
+                            {idx !== missedInterviews.length - 1 && (
+                              <hr className="mt-2 mb-2 border-t border-gray-300" />
+                            )}
+                          </React.Fragment>
+                        ))}
+                        {upcomingInterviews.map((job, idx) => (
+                          <React.Fragment key={job._id}>
+                            <div
+                              className={`mb-2 error flex w-96 p-3 flex-row items-center justify-start bg-[#EDFBD8] border border-solid border-[#EDFBD8] rounded-md shadow-[0_0px_5px_-3px_#111] relative ${
+                                idx === upcomingInterviews.length - 1
+                                  ? ""
+                                  : "mb-2"
+                              }`}
+                              style={{
+                                transition: "transform 0.3s ease-out",
+                                transform: "translateX(0)",
+                              }}
+                            >
+                              <span>
+                                <p className="text-[14px] text-[#2B641E] font-medium">
+                                  <strong>
+                                    Upcoming Interview @ {job.companyName}
+                                  </strong>
+                                </p>
+                                <p className="text-sm text-gray-700 font-medium">
+                                  {job.jobTitle} -{" "}
+                                  {new Date(
+                                    job.interview.interviewDate
+                                  ).toLocaleString()}
+                                </p>
+                              </span>
+
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  removeNotification(job._id, "upcoming");
+                                }}
+                                className=" absolute  top-1 right-1 cursor-pointer hover:text-green-500"
+                              >
+                                <div className="w-5 h-5 ml-auto">
+                                  <svg
+                                    height="20"
+                                    viewBox="0 0 20 20"
+                                    width="20"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <path
+                                      d="m15.8333 5.34166-1.175-1.175-4.6583 4.65834-4.65833-4.65834-1.175 1.175 4.65833 4.65834-4.65833 4.6583 1.175 1.175 4.65833-4.6583 4.6583 4.6583 1.175-1.175-4.6583-4.6583z"
+                                      fill="#2B641E"
+                                    ></path>
+                                  </svg>
+                                </div>
+                              </button>
+                            </div>
+                            {idx !== missedInterviews.length - 1 && (
+                              <hr className="mt-2 mb-2 border-t border-gray-300" />
+                            )}
+                          </React.Fragment>
+                        ))}
+                      </>
+                    )}
+                  </div>
+                )}
+              </li>
+            </>
             <span>
               <Divider variant="solid" type="vertical" className="!m-0 !h-8" />
             </span>
@@ -508,11 +728,11 @@ const Overview = ({
                             </div>
                             <div className="leading-5 text-base font-semibold text-black">
                               {goal?.salaryMin && goal?.salaryMax
-                                ? `${extractCurrencySymbol(goal?.currency)} ${
+                                ? `${extractCurrencySymbol(goal?.currency)}${
                                     goal.salaryMin
                                   } to ${extractCurrencySymbol(
                                     goal?.currency
-                                  )} ${goal.salaryMax}`
+                                  )}${goal.salaryMax}`
                                 : "₦0.00 to ₦0.00"}
 
                               {/* {goal?.salaryMin && goal?.salaryMax
@@ -613,73 +833,112 @@ const Overview = ({
                           Recent Applications
                         </h2>
                       </div>
+
                       {/* Recent Applications List */}
                       <div>
-                        {Object.entries(groupedJobs).map(
-                          ([date, jobList], index) => (
-                            <div key={index} className="mb-6">
-                              {/* Date Header */}
-                              <div className="mb-2 font-semibold text-gray-600 text-sm">
-                                {date}
-                              </div>
-                              <hr className="mb-4 border-t border-gray-300" />
+                        {Object.keys(groupedJobs).length > 0 ? (
+                          Object.entries(groupedJobs).map(
+                            ([date, jobList], index) => (
+                              <div key={index} className="mb-6">
+                                {/* Date Header */}
+                                <div className="mb-2 font-semibold text-gray-600 text-sm">
+                                  {date}
+                                </div>
+                                <hr className="mb-4 border-t border-gray-300" />
 
-                              {/* Job Applications */}
-                              {jobList.map((job, idx) => (
-                                <div
-                                  key={idx}
-                                  className="flex justify-between items-center mb-4 p-2 hover:bg-gray-50 rounded"
-                                >
-                                  {/* Left Section: Job Details */}
-                                  <div className="flex items-center">
-                                    <div className="flex flex-col">
-                                      <span className="font-bold">
-                                        {job.jobTitle}
-                                      </span>
-                                      <span className="text-sm text-gray-500">
-                                        {job.companyName}; {job.location}
+                                {/* Job Applications */}
+                                {jobList.map((job, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="flex justify-between items-center mb-4 p-2 hover:bg-gray-50 rounded"
+                                  >
+                                    {/* Left Section: Job Details */}
+                                    <div className="flex items-center">
+                                      <div className="flex flex-col">
+                                        <span className="font-bold">
+                                          {job.jobTitle}
+                                        </span>
+                                        <span className="text-sm text-gray-500">
+                                          {job.companyName}; {job.location}
+                                        </span>
+                                      </div>
+                                    </div>
+
+                                    {/* Right Section: Status */}
+                                    <div className="flex items-center">
+                                      {/* Job Status */}
+                                      <span
+                                        className={`text-sm px-2 py-1 rounded ${
+                                          [
+                                            "Archived",
+                                            "Withdrawn",
+                                            "Not Selected",
+                                            "No Response",
+                                          ].includes(job.status)
+                                            ? "bg-red-100 text-red-600"
+                                            : "bg-green-100 text-green-600"
+                                        }`}
+                                      >
+                                        {job.status}
                                       </span>
                                     </div>
                                   </div>
-
-                                  {/* Right Section: Status */}
-                                  <div className="flex items-center">
-                                    {/* Job Status */}
-                                    <span
-                                      className={`text-sm px-2 py-1 rounded ${
-                                        [
-                                          "Archived",
-                                          "Withdrawn",
-                                          "Not Selected",
-                                          "No Response",
-                                        ].includes(job.status)
-                                          ? "bg-red-100 text-red-600"
-                                          : "bg-green-100 text-green-600"
-                                      }`}
-                                    >
-                                      {job.status}
-                                    </span>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
+                                ))}
+                              </div>
+                            )
                           )
+                        ) : (
+                          <div className="text-center mt-4">
+                            <Link
+                              to="/dashboard/my-applications/job-trackerv1"
+                              className="text-blue-500 font-semibold hover:underline text-center"
+                            >
+                              <div
+                                role="alert"
+                                className="bg-blue-100 dark:bg-blue-900 border-l-4 border-blue-500 dark:border-blue-700 text-blue-900 dark:text-blue-100 p-2 rounded-lg flex items-center transition duration-300 ease-in-out hover:bg-blue-200 dark:hover:bg-blue-800 transform hover:scale-105"
+                              >
+                                <svg
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  className="h-5 w-5 flex-shrink-0 mr-2 text-blue-600"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    d="M13 16h-1v-4h1m0-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                    strokeWidth="2"
+                                    strokeLinejoin="round"
+                                    strokeLinecap="round"
+                                  ></path>
+                                </svg>
+                                <p className="text-xs font-semibold ml-3">
+                                  No jobs were recently added,
+                                  <br /> add a job to start tracking!
+                                </p>
+                              </div>
+                            </Link>
+                          </div>
                         )}
 
                         {/* View All Applications Link */}
-                        <div className="text-center mt-4">
-                          <Link
-                            to="/dashboard/my-applications/job-trackerv1"
-                            className="text-blue-500 font-semibold hover:underline"
-                          >
-                            View All Applications History
-                          </Link>
-                        </div>
+                        {Object.keys(groupedJobs).length > 0 && (
+                          <div className="text-center mt-4">
+                            <Link
+                              to="/dashboard/my-applications/job-trackerv1"
+                              className="text-blue-500 font-semibold text-center"
+                            >
+                              <button className="cta-button">
+                                <span className="box hover-underline-animation">
+                                  View All Applications History
+                                </span>
+                              </button>
+                            </Link>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
                 </div>
-
                 <div className="ant-space-item">
                   <div className="border bg-card text-card-foreground shadow-sm rounded-tl-none rounded-bl-xl rounded-br-none rounded-tr-xl">
                     <div className="flex flex-col space-y-1.5 p-6">
@@ -688,11 +947,22 @@ const Overview = ({
                           Job Search Pipeline
                         </h2>
                         <span className="font-medium text-[14px]">
-                          <DatePicker.RangePicker
-                            value={dateRange}
-                            onChange={onDateChange}
-                            format="YYYY-MM-DD"
-                          />
+                          {dateRange.startDate && dateRange.endDate ? (
+                            <p>
+                              Date Range:{" "}
+                              <strong>
+                                {dayjs(dateRange.startDate).format(
+                                  "YYYY-MM-DD"
+                                )}
+                              </strong>{" "}
+                              to{" "}
+                              <strong>
+                                {dayjs(dateRange.endDate).format("YYYY-MM-DD")}
+                              </strong>
+                            </p>
+                          ) : (
+                            ""
+                          )}{" "}
                         </span>
                       </div>
 
@@ -710,9 +980,6 @@ const Overview = ({
                                 cy="50%"
                                 outerRadius={100}
                                 fill="#8884d8"
-                                // label={({ name, percentage }) =>
-                                //   `${name}: ${percentage}%`
-                                // }
                               >
                                 {data.map((entry, index) => (
                                   <Cell
@@ -769,7 +1036,9 @@ const Overview = ({
                           </div>
                         </div>
                       ) : (
-                        <p>No data available for the selected range.</p>
+                        <p className="text-center">
+                          No data available for the selected range.
+                        </p>
                       )}
                     </div>
                   </div>
@@ -890,51 +1159,78 @@ const Overview = ({
                     <div className="module-header flex mb-4 justify-between flex-col">
                       <div className="module-heading">
                         <h2 className="h3 tracking-normal font-semibold leading-[1.2]">
-                          Upcoming Interviews{" "}
+                          Upcoming Dates{" "}
                         </h2>
                       </div>
-                      <hr className="mb-4 mt-4 border-t border-gray-300" />
 
-                      <div className="space-y-4 -mx-5">
-                        {sortedJobs.map((job) => (
-                          <div
-                            key={job._id}
-                            className={`flex justify-between items-center border p-4 rounded-md ${getBorderColor(
-                              job.interview?.interviewDate
-                            )}`}
-                          >
-                            <div>
-                              <h3 className="text-[20px] font-semibold">
-                                {job.jobTitle}
-                              </h3>
-                              <p className="text-sm text-gray-600">
-                                {job.companyName}
-                              </p>
-                              <p className="text-sm text-gray-500">
-                                Interview Type:{" "}
-                                {job.interview?.interviewType || "N/A"}
-                              </p>
-                              <button
-                                onClick={() => handleViewSchedule(job)}
-                                className="text-blue-500 hover:underline"
+                      <div className="module-body opened block">
+                        <div className="ant-row calendar mb-6 -ml-3 flex min-w-0 mt-[15px]">
+                          {weekDates.map((date) => (
+                            <div
+                              key={date.toISOString()} // Use a unique key (ISO string)
+                              className="ant-col text-center cursor-pointer"
+                              style={{ flexBasis: "14.2%" }}
+                              onClick={() => handleDateSelect(date)}
+                            >
+                              <div className="day text-gray-600 font-semibold">
+                                {date.toLocaleDateString("en-US", {
+                                  weekday: "short",
+                                })}
+                              </div>
+                              <div
+                                className={`day-number mt-[10px] text-center text-[16px] font-semibold h-8 leading-[28px] rounded-full ${
+                                  selectedDate?.toDateString() ===
+                                  date.toDateString()
+                                    ? "bg-[#111313] text-white w-8 h-8 inline-block"
+                                    : "text-[#dcdcdc]"
+                                }`}
                               >
-                                View Schedule
-                              </button>
+                                <span>{date.getDate()}</span>
+                              </div>
                             </div>
-                            <div className="flex flex-col text-right">
-                              <p className="text-sm text-gray-500">
-                                {new Date(
-                                  job.interview?.interviewDate
-                                ).toLocaleDateString()}
+                          ))}
+                        </div>
+                        <hr className="mb-4 mt-4 border-t border-gray-300" />
+
+                        {selectedDate && (
+                          <div className="-mx-2">
+                            {jobDetails ? (
+                              <ul className="space-y-4">
+                                {jobDetails.map((job) => (
+                                  <li
+                                    key={job._id}
+                                    className={`p-4 border rounded-md ${getBorderColor(
+                                      job.interview?.interviewDate
+                                    )}`}
+                                  >
+                                    <h5 className="text-[16px] mb-[7px] font-extrabold">
+                                      Interview @ {job.companyName}
+                                    </h5>
+                                    <p className="text-[#7b7b7b] leading-3 font-[12px]">
+                                      <span className="font-bold">
+                                        {job.jobTitle}
+                                      </span>
+                                      -{" "}
+                                      {new Date(
+                                        job.interview?.interviewDate
+                                      ).toLocaleString()}
+                                    </p>
+                                    <button
+                                      onClick={() => handleViewSchedule(job)}
+                                      className="mt-[7px] text-blue-500 hover:underline"
+                                    >
+                                      View Schedule
+                                    </button>
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <p className="text-gray-600 font-medium">
+                                No jobs or contacts to follow up on this date.
                               </p>
-                              <p className="text-sm text-gray-500">
-                                {new Date(
-                                  job.interview?.interviewDate
-                                ).toLocaleTimeString()}
-                              </p>
-                            </div>
+                            )}
                           </div>
-                        ))}
+                        )}
                       </div>
                     </div>
                   </div>

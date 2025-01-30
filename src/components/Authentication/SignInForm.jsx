@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { notification } from "antd";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import { BASE_API_URL } from "../../utils/constant";
 
 const SignInForm = () => {
   const [formData, setFormData] = useState({
@@ -36,7 +37,7 @@ const SignInForm = () => {
 
     try {
       const response = await axios.post(
-        "https://backend-repo-1-x2b1.onrender.com/api/auth/login",
+        `${BASE_API_URL}/api/auth/login`,
         formData
       );
 

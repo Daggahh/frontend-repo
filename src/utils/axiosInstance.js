@@ -2,9 +2,10 @@
 
 import axios from "axios";
 import { getValidToken } from "./tokenHelper";
+import { BASE_API_URL } from "./constant";
 
 const axiosInstance = axios.create({
-  baseURL: "https://backend-repo-1-x2b1.onrender.com/api",
+  baseURL: `${BASE_API_URL}`,
   headers: {
     "Content-Type": "application/json",
   },

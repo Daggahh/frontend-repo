@@ -18,7 +18,7 @@ const Dashboard = () => {
   // }, []);
 
   return (
-    <div className="dashboard">
+    <div className="dashboard container-none">
       <SideDash isOpen={isSideDashOpen} toggleSidebar={toggleSidebar} />
       <MainBoard isSideDashOpen={isSideDashOpen} />
       {/* <Outlet /> */}

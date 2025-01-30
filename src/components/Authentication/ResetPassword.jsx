@@ -4,6 +4,7 @@ import { message } from "antd";
 import axios from "axios";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import "./Forms.css";
+import { BASE_API_URL } from "../../utils/constant";
 
 const ResetPassword = () => {
   const { token } = useParams(); // Retrieve the token from the URL
@@ -37,7 +38,7 @@ const ResetPassword = () => {
     try {
       // Make POST request to reset password
       const response = await axios.post(
-        "https://backend-repo-1-x2b1.onrender.com/api/password/reset-password",
+        `${BASE_API_URL}/api/password/reset-password`,
         {
           token,
           newPassword,

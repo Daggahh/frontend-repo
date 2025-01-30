@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { message } from "antd";
 import axios from "axios";
 import "./Forms.css";
+import { BASE_API_URL } from "../../utils/constant";
 
 const ForgetPassword = () => {
   const [email, setEmail] = useState("");
@@ -29,8 +30,9 @@ const ForgetPassword = () => {
 
     try {
       // Make POST request to backend
+
       const response = await axios.post(
-        "https://backend-repo-1-x2b1.onrender.com/api/password/request-reset",
+        `${BASE_API_URL}/api/password/request-reset`,
         {
           email,
         }
@@ -72,8 +74,12 @@ const ForgetPassword = () => {
             onChange={(e) => setEmail(e.target.value)}
             autoComplete="email"
           />
-          <button className="auth-btn" type="submit" disabled={isButtonDisabled}>
-          {isButtonDisabled ? "Reset Link Sent" : "Send Reset Link"}
+          <button
+            className="auth-btn"
+            type="submit"
+            disabled={isButtonDisabled}
+          >
+            {isButtonDisabled ? "Reset Link Sent" : "Send Reset Link"}
           </button>
         </form>
         <div className="links-div">
