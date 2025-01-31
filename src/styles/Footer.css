@@ -63,17 +63,42 @@
   color: var(--primaryColor);
 }
 
-.footer-2 a {
+.footer-2 dd {
   margin-bottom: 12px;
+}
+
+.footer-2 a {
   text-decoration: none;
   font-size: 14px;
   font-family: sans-serif;
   line-height: 20px;
   color: rgb(96, 111, 133);
+  overflow: hidden;
+  position: relative;
 }
 
-.footer-2 a:hover {
-  text-decoration: underline;
+:root {
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+}
+dd a::after {
+  background: currentColor;
+  bottom: 0;
+  content: "";
+  height: 1px;
+  left: 0;
+  position: absolute;
+  transition: transform 0.7s var(--ease-out-expo);
+  width: 100%;
+}
+
+dd a::after {
+  transform: scaleX(0);
+  transform-origin: right center;
+}
+
+dd a:hover::after {
+  transform: scaleX(1);
+  transform-origin: left center;
 }
 
 .socials {

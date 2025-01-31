@@ -5,7 +5,7 @@ import Logo from "../../assets/logo.png";
 import { Link } from "react-router-dom";
 import { RxHamburgerMenu } from "react-icons/rx";
 // import SideBar from "./SideBar";
-import "../../styles/Nav.css";  
+import "../../styles/Nav.css";
 import { RadarOutlined } from "@mui/icons-material";
 
 const Nav = () => {
@@ -59,16 +59,25 @@ const Nav = () => {
 
             <div className="navbar-left">
               <div className="navbar-menu">
-                <a href="/" className="menu-links long-text">
-                  <p className="menu-title">Job Application Tracker</p>
+                <a href="/" className="menu-links long-text relative">
+                  <p className="menu-title relative hover-underline-animation">
+                    Job Application Tracker
+                  </p>
                 </a>
 
-                <Link to="/dashboard/supportcenter" className="menu-links">
-                  <p className="menu-title">Support Center</p>
+                <Link
+                  to="/dashboard/supportcenter"
+                  className="menu-links relative"
+                >
+                  <p className="menu-title relative hover-underline-animation">
+                    Support Center
+                  </p>
                 </Link>
 
-                <Link to="/pricing" className="menu-links">
-                  <p className="menu-title">Pricing</p>
+                <Link to="/pricing" className="menu-links relative">
+                  <p className="menu-title relative hover-underline-animation">
+                    Pricing
+                  </p>
                 </Link>
               </div>
             </div>

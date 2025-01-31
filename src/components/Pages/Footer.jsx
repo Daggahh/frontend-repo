@@ -33,20 +33,40 @@ const Footer = () => {
           <div className="footer-2">
             <div className="Company">
               <h4>Company</h4>
-              <Link to="/about/">About us</Link>
-              <a href="#">Blog</a>
-              <a href="#">Contact us</a>
-              <Link to="/FAQ/">How it Works</Link>
-              <Link to="/testimonials/">Testimonials</Link>
+              <dd>
+                <Link to="/about/">About us</Link>
+              </dd>
+              <dd>
+                <a href="#">Blog</a>
+              </dd>
+              <dd>
+                <a href="#">Contact us</a>
+              </dd>
+              <dd>
+                <Link to="/FAQ/">How it Works</Link>
+              </dd>
+              <dd>
+                <Link to="/testimonials/">Testimonials</Link>
+              </dd>
             </div>
 
             <div className="support">
               <h4>Support</h4>
-              <a href="#">Help center</a>
-              <a href="#">Terms of service</a>
-              <a href="#">Legal</a>
-              <a href="#">Privacy policy</a>
-              <a href="#">Status</a>
+              <dd>
+                <a href="#">Help center</a>
+              </dd>
+              <dd>
+                <a href="#">Terms of service</a>
+              </dd>
+              <dd>
+                <a href="#">Legal</a>
+              </dd>
+              <dd>
+                <a href="#">Privacy policy</a>
+              </dd>
+              <dd>
+                <a href="#">Status</a>
+              </dd>
             </div>
           </div>
 
