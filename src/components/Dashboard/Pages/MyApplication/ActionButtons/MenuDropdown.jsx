@@ -121,60 +121,6 @@ const MenuDropdown = () => {
                     </a>
                   </span>
                 </li>
-                <li
-                  className="filter-dropdown-menu-item"
-                  role="menuitem"
-                  tabIndex="-1"
-                  data-menu-id="export-report"
-                >
-                  <span
-                    role="img"
-                    aria-label="download"
-                    className="dropdown-menuicon dropdown-menuicon-download filter-dropdown-menu-item-icon"
-                  >
-                    <svg
-                      viewBox="64 64 896 896"
-                      focusable="false"
-                      data-icon="download"
-                      width="1em"
-                      height="1em"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path d="M505.7 661a8 8 0 0012.6 0l112-141.7c4.1-5.2.4-12.9-6.3-12.9h-74.1V168c0-4.4-3.6-8-8-8h-60c-4.4 0-8 3.6-8 8v338.3H400c-6.7 0-10.4 7.7-6.3 12.9l112 141.8zM878 626h-60c-4.4 0-8 3.6-8 8v154H214V634c0-4.4-3.6-8-8-8h-60c-4.4 0-8 3.6-8 8v198c0 17.7 14.3 32 32 32h684c17.7 0 32-14.3 32-32V634c0-4.4-3.6-8-8-8z"></path>
-                    </svg>
-                  </span>
-                  <span className="filter-dropdown-menu-title-content">
-                    Export Report
-                  </span>
-                </li>
-                <li
-                  className="filter-dropdown-menu-item"
-                  role="menuitem"
-                  tabIndex="-1"
-                  data-menu-id="download-data"
-                >
-                  <span
-                    role="img"
-                    aria-label="download"
-                    className="dropdown-menuicon dropdown-menuicon-download filter-dropdown-menu-item-icon"
-                  >
-                    <svg
-                      viewBox="64 64 896 896"
-                      focusable="false"
-                      data-icon="download"
-                      width="1em"
-                      height="1em"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path d="M505.7 661a8 8 0 0012.6 0l112-141.7c4.1-5.2.4-12.9-6.3-12.9h-74.1V168c0-4.4-3.6-8-8-8h-60c-4.4 0-8 3.6-8 8v338.3H400c-6.7 0-10.4 7.7-6.3 12.9l112 141.8zM878 626h-60c-4.4 0-8 3.6-8 8v154H214V634c0-4.4-3.6-8-8-8h-60c-4.4 0-8 3.6-8 8v198c0 17.7 14.3 32 32 32h684c17.7 0 32-14.3 32-32V634c0-4.4-3.6-8-8-8z"></path>
-                    </svg>
-                  </span>
-                  <span className="filter-dropdown-menu-title-content">
-                    Download Data
-                  </span>
-                </li>
               </ul>
               <div aria-hidden="true" style={{ display: "none" }}></div>
             </div>

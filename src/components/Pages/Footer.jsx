@@ -17,12 +17,10 @@ const Footer = () => {
               <h1 className="!tracking-normal text-[#012332] text-[56px] font-bold tracki\">
                 J
                 <span>
-                  {/* <FiLoader /> */}
                   <RadarOutlined fontSize="large" />
                 </span>
                 bJ
                 <span>
-                  {/* <FiLoader /> */}
                   <RadarOutlined fontSize="large" />
                 </span>
                 tt
@@ -53,7 +51,7 @@ const Footer = () => {
             <div className="support">
               <h4>Support</h4>
               <dd>
-                <a href="#">Help center</a>
+                <Link to="/dashboard/supportcenter">Help center</Link>
               </dd>
               <dd>
                 <a href="#">Terms of service</a>

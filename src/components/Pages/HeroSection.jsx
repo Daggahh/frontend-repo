@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import "../../styles/HeroSection.css";
-// import rectbig from "../../assets/rectbig.svg"
 import rectsmall from "../../assets/rectsmall.svg";
 import { Link } from "react-router-dom";
 import gsap from "gsap";
@@ -33,7 +32,6 @@ const HeroSection = () => {
           </div>
           <div className="call-to-action">
             <p>
-              {" "}
               Stay organized and on top of your job applications with our
               intuitive tracker. Manage deadlines, schedule interviews, and
               receive timely reminders to ensure you never miss an opportunity
@@ -41,7 +39,11 @@ const HeroSection = () => {
           </div>
           <div className="hero-section-btn">
             <Link to="/auth/signup">
-              <button className="get-started-btn">Get Started</button>
+              <button className="get-started-btn">
+                <span class="shadow"></span>
+                <span class="edge"></span>
+                <span class="front text">Get Started! - It's 100% Free!</span>
+              </button>
             </Link>
           </div>
         </div>

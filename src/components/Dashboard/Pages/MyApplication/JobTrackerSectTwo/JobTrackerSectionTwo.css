@@ -55,6 +55,10 @@
   font-family: "Montserrat", sans-serif !important;
 }
 
+.ts-btn > span {
+  font-weight: 600;
+}
+
 .ant-btn-dangerous {
   color: #c32525;
   border-color: #c32525;

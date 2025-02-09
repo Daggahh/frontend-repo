@@ -13,7 +13,13 @@ import "../../styles/Features.css";
 function FeatureItem({ icon, header, subtext, className }) {
   return (
     <div className={`feature-item ${className}`}>
-      <div className="features-card">
+      <div className="features-card ">
+        <div className="mobile-ft-card">
+          <div className="features-icon">{icon}</div>
+          <div className="features-text">
+            <h1>{header}</h1>
+          </div>
+        </div>
         <div className="features-icon">{icon}</div>
         <div className="features-text">
           <h1>{header}</h1>
@@ -83,7 +89,7 @@ function Features() {
   ];
 
   return (
-    <section className="features-main-section" ref={sectionRef}>
+    <section className="features-main-section !shadow-xl" ref={sectionRef}>
       <div className="features-container">
         <div className="features-main-text">
           <div style={{ position: "relative" }}>

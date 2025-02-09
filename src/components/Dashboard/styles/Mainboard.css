@@ -6,16 +6,16 @@
   display: flex;
   flex: auto;
   flex-direction: column;
-  background-image: repeating-radial-gradient(
+  /* background-image: repeating-radial-gradient(
     #0c0a0a 80%,
     #2f312f 90%,
     #3f4549 90%
   );
-  background-size: 65px 65px;
-  /* background: #fff; */
+  background-size: 65px 65px; */
+  background: #fff;
   font-family: "Montserrat", sans-serif !important;
 }
 
 .expanded-mainboard {
-  margin-left: 4rem;
+  margin-left: 4.5rem;
 }

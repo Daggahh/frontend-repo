@@ -178,6 +178,16 @@ a {
   }
 }
 
+@media only screen and (min-width: 768px) and (max-width: 1280px) and (max-height: 698px) {
+  .jobjot-main-container {
+    max-width: 991px;
+  }
+
+  .jobjot-main-container {
+    margin-top: 58px !important;
+  }
+}
+
 @media only screen and (min-width: 768px) and (max-width: 1440px) and (max-height: 800px) {
   body,
   html {
@@ -217,8 +227,8 @@ a {
   }
 }
 
-@media only screen and (min-width: 768px) and (max-width: 1280px) and (max-height: 698px) {
+@media screen and (max-width: 991px) {
   .jobjot-main-container {
-    max-width: 991px;
+    margin-top: 0 !important;
   }
 }

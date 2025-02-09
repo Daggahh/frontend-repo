@@ -7,6 +7,7 @@ import {
   Skeleton,
   Tooltip,
   Dropdown,
+  message,
 } from "antd";
 import {
   LeftCircleOutlined,
@@ -40,13 +41,6 @@ import {
 
 const AddSalaryRange = lazy(() => import("./JobTrackerSectOne/AddSalaryRange"));
 
-const columnData = [
-  { title: "Date Saved", field: "added_at" },
-  { title: "N/A", field: "posted_at" },
-  { title: "N/A", field: "applied_at" },
-  { title: "N/A", field: "follow_up_at" },
-];
-
 const JobTrackerSectionOne = () => {
   // Extracts the current job listings, a function to update them, loading state, and an update handler from the context provided by the parent component.
   const {
@@ -56,6 +50,8 @@ const JobTrackerSectionOne = () => {
     handleJobUpdate,
     selectedJob,
     setSelectedJob,
+    archivedJobs,
+    setArchivedJobs,
   } = useOutletContext();
   const selectedJobFromList = useMemo(
     () => jobs?.find((job) => job._id === selectedJob?._id),
@@ -236,14 +232,28 @@ const JobTrackerSectionOne = () => {
             dateValue: appliedDate,
           });
         }
-
-        // Update local job list
-        const updatedJobs = jobs.map((job) =>
-          job._id === selectedJob._id
-            ? { ...job, status: newStatus, dates: updatedDates }
-            : job
+        setJobs((prevJobs) =>
+          prevJobs.map((job) =>
+            job._id === selectedJob._id
+              ? { ...job, status: newStatus, dates: updatedDates }
+              : job
+          )
         );
-        setJobs(updatedJobs);
+
+        // If the job is archived, move it to archived jobs
+        const archivedStatuses = [
+          "I Withdrew",
+          "Not Selected",
+          "No Response 😒",
+          "Archived",
+        ];
+        if (archivedStatuses.includes(newStatus)) {
+          setArchivedJobs((prevArchived) => [...prevArchived, updatedJob]);
+          setJobs((prevJobs) =>
+            prevJobs.filter((job) => job._id !== selectedJob._id)
+          );
+        }
+
         setSelectedJob((prevJob) => ({
           ...prevJob,
           status: newStatus,
@@ -468,26 +478,38 @@ const JobTrackerSectionOne = () => {
     { label: "Accepted", value: "Accepted" },
   ];
 
-  const handleMenuClick = (key) => {
+  const handleMenuClick = async (key) => {
     console.log(`Clicked on: ${key}`);
     if (key === "5") {
-      // Add custom logic for "Delete Job"
       setDeleteModalOpen(true);
-
       console.log("Job Deleted");
     }
-    setDropdownVisible(false); // Close dropdown
+    // Close the dropdown after selection
+    setDropdownVisible(false);
   };
 
   const menuItems = [
     {
       key: "1",
       label: "I Withdrew",
-      onClick: () => handleMenuClick("1"),
+      onClick: () => handleStatusChange({ target: { value: "I Withdrew" } }),
     },
-    { key: "2", label: "Not Selected", onClick: () => handleMenuClick("2") },
-    { key: "3", label: "No Response 👻", onClick: () => handleMenuClick("3") },
-    { key: "4", label: "Archived", onClick: () => handleMenuClick("4") },
+    {
+      key: "2",
+      label: "Not Selected",
+      onClick: () => handleStatusChange({ target: { value: "Not Selected" } }),
+    },
+    {
+      key: "3",
+      label: "No Response 😒",
+      onClick: () =>
+        handleStatusChange({ target: { value: "No Response 😒" } }),
+    },
+    {
+      key: "4",
+      label: "Archived",
+      onClick: () => handleStatusChange({ target: { value: "Archived" } }),
+    },
     { key: "divider", type: "divider" },
     {
       key: "5",
@@ -531,33 +553,6 @@ const JobTrackerSectionOne = () => {
                       </div>
                     </div>
                   </div>
-
-                  {columnData.map((column, index) => (
-                    <div
-                      key={index}
-                      className="tabulator-col tabulator-sortable tabulator-col-sorter-element"
-                      role="columnheader"
-                      aria-sort="none"
-                      data-tabulator-field={column.field}
-                      style={{
-                        justifyContent: "center",
-                        display: "none",
-                        minWidth: "40px",
-                        height: "37px",
-                      }}
-                    >
-                      <div className="tabulator-col-content">
-                        <div className="tabulator-col-title-holder">
-                          <div className="tabulator-col-title">
-                            {column.title}
-                          </div>
-                          <div className="tabulator-col-sorter">
-                            <div className="tabulator-arrow"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
                 </div>
                 <div
                   className="tabulator-frozen-rows-holder"
@@ -616,44 +611,6 @@ const JobTrackerSectionOne = () => {
                             </div>
                           </div>
                         </div>
-                      </div>
-
-                      <div
-                        className="tabulator-cell"
-                        role="gridcell"
-                        data-tabulator-field="added_at"
-                        style={{ display: "none", height: "56px" }}
-                      >
-                        <span
-                          className="tabulator-cell-line-clamp tabulator-cell-full-background"
-                          style={{ background: "" }}
-                        >
-                          {job.createdAt}
-                        </span>
-                      </div>
-                      <div
-                        className="tabulator-cell"
-                        role="gridcell"
-                        data-tabulator-field="posted_at"
-                        style={{ display: "none", height: "56px" }}
-                      >
-                        {job.postedAt || "&nbsp;"}
-                      </div>
-                      <div
-                        className="tabulator-cell"
-                        role="gridcell"
-                        data-tabulator-field="applied_at"
-                        style={{ display: "none", height: "56px" }}
-                      >
-                        {job.appliedAt || "&nbsp;"}
-                      </div>
-                      <div
-                        className="tabulator-cell"
-                        role="gridcell"
-                        data-tabulator-field="follow_up_at"
-                        style={{ display: "none", height: "56px" }}
-                      >
-                        {job.followUpAt || "&nbsp;"}
                       </div>
                     </div>
                   ))

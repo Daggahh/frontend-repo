@@ -47,6 +47,15 @@ export const fetchJobsFromAPI = async () => {
   return response.data;
 };
 
+// Fetch archived jobs from backend
+export const fetchArchivedJobsFromAPI = async () => {
+  const token = localStorage.getItem("authtoken");
+  const response = await axios.get(`${API_URL}/archived`, {
+      headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
 // Add a new job
 export const addJobToAPI = async (job) => {
   const token = localStorage.getItem("authtoken");

@@ -1,15 +1,25 @@
 import React from "react";
 import "./JobPipeline.css";
+import { useOutletContext } from "react-router-dom";
 
 const JobPipeline = () => {
+  const { jobs, setSelectedJob } = useOutletContext();
+
   const pipelineSections = [
-    { id: 1, value: "1", label: "bookmarked", disabled: false },
-    { id: 2, value: "– –", label: "applying", disabled: true },
-    { id: 3, value: "– –", label: "applied", disabled: true },
-    { id: 4, value: "– –", label: "interviewing", disabled: true },
-    { id: 5, value: "– –", label: "negotiating", disabled: true },
-    { id: 6, value: "– –", label: "accepted", disabled: true },
+    "Bookmarked",
+    "Applying",
+    "Applied",
+    "Interviewing",
+    "Negotiating",
+    "Accepted",
   ];
+
+  const getJobCount = (status) =>
+    jobs.filter((job) => job.status === status).length;
+
+  const handleFilterJobs = (status) => {
+    setSelectedJob(jobs.filter((job) => job.status === status));
+  };
 
   return (
     <div
@@ -18,24 +28,30 @@ const JobPipeline = () => {
     >
       <div className="job-pipeline-container">
         <div className="active-jobs-container">
-          {pipelineSections.map((section) => (
-            <div
-              key={section.id}
-              className={`job-pipeline-section-wrapper reset-all-button-styles ${
-                section.disabled ? "" : "contains-listings active-filter"
-              }`}
-            >
-              <div className="section-wrapper-inner">
-                <button
-                  className="job-pipeline-section"
-                  disabled={section.disabled}
-                >
-                  <div className="section-value h4">{section.value}</div>
-                  <div className="section-label">{section.label}</div>
-                </button>
+          {pipelineSections.map((status, index) => {
+            const count = getJobCount(status);
+            return (
+              <div
+                key={index}
+                className={`job-pipeline-section-wrapper reset-all-button-styles ${
+                  count > 0 ? "contains-listings active-filter" : ""
+                }`}
+              >
+                <div className="section-wrapper-inner">
+                  <button
+                    className="job-pipeline-section"
+                    onClick={() => handleFilterJobs(status)}
+                    disabled={count === 0}
+                  >
+                    <div className="section-value h4">
+                      {count > 0 ? count : "--"}
+                    </div>
+                    <div className="section-label">{status}</div>
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

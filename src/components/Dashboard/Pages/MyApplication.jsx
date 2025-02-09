@@ -6,6 +6,7 @@ import AntJobModal from "./MyApplication/ActionButtons/AntJobModal";
 import { Outlet } from "react-router-dom";
 import { message } from "antd";
 import {
+  fetchArchivedJobsFromAPI,
   fetchJobsFromAPI,
   updateJobInAPI,
 } from "../../../utils/api/jobService";
@@ -13,13 +14,31 @@ import {
 const MyApplication = ({ modalOpen, setModalOpen, jobs, setJobs }) => {
   const [selectedJob, setSelectedJob] = useState(null); // State to track the currently selected job.
   const [loadingJobs, setLoadingJobs] = useState(true);
+  const [archivedJobs, setArchivedJobs] = useState([]); // State for archived jobs
 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
         setLoadingJobs(true);
         const fetchedJobs = await fetchJobsFromAPI();
-        setJobs(fetchedJobs);
+
+        // Filter out archived jobs
+        // Separate active and archived jobs
+        const archivedStatuses = [
+          "I Withdrew",
+          "Not Selected",
+          "No Response 😒",
+          "Archived",
+        ];
+        const activeJobs = fetchedJobs.filter(
+          (job) => !archivedStatuses.includes(job.status)
+        );
+        const archivedJobs = fetchedJobs.filter((job) =>
+          archivedStatuses.includes(job.status)
+        );
+
+        setJobs(activeJobs);
+        setArchivedJobs(archivedJobs);
       } catch (error) {
         console.error("Error fetching jobs:", error);
         message.error("Unable to fetch jobs. Please try again later.");
@@ -39,7 +58,7 @@ const MyApplication = ({ modalOpen, setModalOpen, jobs, setJobs }) => {
         updatedJob
       );
 
-      // Update the jobs state
+      // Update the jobs state and filter out archived jobs
       setJobs((prevJobs) =>
         prevJobs.map((job) =>
           job._id === updatedJobresponse._id
@@ -47,6 +66,23 @@ const MyApplication = ({ modalOpen, setModalOpen, jobs, setJobs }) => {
             : job
         )
       );
+
+      // If the job is archived, remove it from active jobs and add to archived jobs
+      const archivedStatuses = [
+        "I Withdrew",
+        "Not Selected",
+        "No Response 😒",
+        "Archived",
+      ];
+      if (archivedStatuses.includes(updatedJobresponse.status)) {
+        setJobs((prevJobs) =>
+          prevJobs.filter((job) => job._id !== updatedJobresponse._id)
+        );
+        setArchivedJobs((prevArchivedJobs) => [
+          ...prevArchivedJobs,
+          updatedJobresponse,
+        ]);
+      }
 
       message.success("Job updated successfully!");
     } catch (error) {
@@ -71,6 +107,8 @@ const MyApplication = ({ modalOpen, setModalOpen, jobs, setJobs }) => {
                 handleJobUpdate,
                 selectedJob,
                 setSelectedJob,
+                archivedJobs,
+                setArchivedJobs,
               }}
             />
           </div>

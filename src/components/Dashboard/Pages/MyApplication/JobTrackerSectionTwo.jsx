@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { Checkbox, Divider, Button, Col } from "antd";
+import { Checkbox, Divider, Button, Col, Menu, Dropdown } from "antd";
 import {
   EditOutlined,
   InboxOutlined,
   DeleteOutlined,
-  RightOutlined,
 } from "@ant-design/icons";
 import JobPipeline from "./JobTrackerSectTwo/JobPipeline";
 import DropdownComponent from "./ActionButtons/DropdownComponent";
@@ -18,28 +17,84 @@ import "./JobTrackerSectTwo/JobTrackerSectionTwo.css";
 import "./JobTrackerSectOne/JobTrackerSectionOne.css";
 import { useOutletContext } from "react-router-dom";
 
+const STATUS_OPTIONS = [
+  "Bookmarked",
+  "Applying",
+  "Applied",
+  "Interviewing",
+  "Negotiating",
+  "Accepted",
+  "I Withdrew",
+  "Not Selected",
+  "No Response 😒",
+  "Archived",
+];
+
+const ARCHIVE_STATUSES = [
+  "I Withdrew",
+  "Not Selected",
+  "No Response 😒",
+  "Archived",
+];
+
 const JobTrackerSectionTwo = () => {
-  const {
-    jobs,
-    setJobs,
-    loadingJobs,
-    handleJobUpdate,
-    selectedJob,
-    setSelectedJob,
-  } = useOutletContext();
+  const { jobs, setJobs, handleJobUpdate, selectedJob, setSelectedJob, archivedJobs, setArchivedJobs } =
+    useOutletContext();
   const [modalOpen, setModalOpen] = useState(false);
-  // const [selected, setSelected] = useState(0);
+  const [selectedJobs, setSelectedJobs] = useState([]);
   const [isChecked, setIsChecked] = useState(false);
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
+  const activeJobs = jobs.filter(
+    (job) => !ARCHIVE_STATUSES.includes(job.status)
+  );
+
   const handleChange = (e) => {
-    // setSelected(isChecked ? 1 : 0); // Update selected count
     setIsChecked(e.target.checked);
+  };
+
+  const handleSelectAll = (e) => {
+    setSelectedJobs(e.target.checked ? activeJobs.map((job) => job._id) : []);
+  };
+
+  const handleJobSelect = (jobId) => {
+    setSelectedJobs((prev) =>
+      prev.includes(jobId)
+        ? prev.filter((id) => id !== jobId)
+        : [...prev, jobId]
+    );
+  };
+
+  const handleStatusChange = (jobId, newStatus) => {
+    const updatedJobs = jobs.map((job) =>
+      job._id === jobId ? { ...job, status: newStatus } : job
+    );
+    setJobs(updatedJobs);
+    handleJobUpdate(jobId, { status: newStatus });
+  };
+
+  const handleArchive = () => {
+    setJobs((prev) =>
+      prev.map((job) =>
+        selectedJobs.includes(job._id) ? { ...job, status: "Archived" } : job
+      )
+    );
+    setSelectedJobs([]);
   };
 
   const handleDeleteJobClick = () => {
     setDeleteModalOpen(true); // Open delete job modal
   };
+
+  const statusMenu = (jobId) => ({
+    items: STATUS_OPTIONS.map((status) => ({
+      key: status,
+      label: (
+        <span onClick={() => handleStatusChange(jobId, status)}>{status}</span>
+      ),
+    })),
+  });
 
   // const [visibleColumns, setVisibleColumns] = useState({
   //   selected: true,
@@ -56,23 +111,22 @@ const JobTrackerSectionTwo = () => {
 
   const data = [
     {
-      id: selectedJob?._id,
+      id: jobs?._id,
       selected: false,
-      role: selectedJob?.jobTitle,
-      company_name: selectedJob?.companyName,
-      applied_at: selectedJob?.dates.applied,
-      added_at: selectedJob?.dates.saved,
-      application_deadline: selectedJob?.dates.deadline,
-      follow_up_at: selectedJob?.dates.followUp,
-      min_salary: selectedJob?.salaryRange.minSalary,
-      max_salary: selectedJob?.salaryRange.maxSalary,
-      statusName: selectedJob?.status,
-      location: selectedJob?.location,
+      role: jobs?.jobTitle,
+      company_name: jobs?.companyName,
+      applied_at: jobs?.dates.applied,
+      added_at: jobs?.dates.saved,
+      application_deadline: jobs?.dates.deadline,
+      follow_up_at: jobs?.dates.followUp,
+      max_salary: jobs?.salaryRange.maxSalary,
+      statusName: jobs?.status,
+      location: jobs?.location,
     },
     //other objexts will be added here
   ];
 
-  const columns = [
+  const columns = [ 
     {
       title: "",
       dataIndex: "selected",
@@ -300,30 +354,52 @@ const JobTrackerSectionTwo = () => {
           >
             <Col>
               <div className="selection-bar">
-                <Checkbox className="font-semibold" onChange={handleChange}>
-                  {/* {selected} selected */}
-                  {`${isChecked ? 1 : 0} selected`}
+                <Checkbox
+                  className="font-semibold"
+                  onChange={handleSelectAll}
+                  checked={selectedJobs.length === activeJobs.length}
+                >
+                  {`${selectedJobs.length} selected`}
                 </Checkbox>
 
-                {isChecked && (
+                {selectedJobs.length > 0 && (
                   <>
                     <Divider type="vertical" className="vertical-separator" />
-                    <Button icon={<EditOutlined />} size="small">
-                      Status
-                    </Button>
+                    <Dropdown
+                      menu={statusMenu(selectedJobs[0])}
+                      trigger={["click"]}
+                    >
+                      <Button
+                        icon={<EditOutlined />}
+                        size="small"
+                        className="ts-btn"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setStatusDropdownOpen(true);
+                        }}
+                      >
+                        Status
+                      </Button>
+                    </Dropdown>
                     <Divider type="vertical" className="vertical-separator" />
-                    <Button icon={<InboxOutlined />} size="small">
+                    <Button
+                      icon={<InboxOutlined />}
+                      size="small"
+                      className="ts-btn"
+                      onClick={handleArchive}
+                    >
                       Archive
                     </Button>
                     <Button
                       icon={<DeleteOutlined />}
                       size="small"
                       danger
+                      className="ts-btn"
                       onClick={handleDeleteJobClick}
                     >
                       Delete
                     </Button>
-                    {isChecked && (
+                    {deleteModalOpen && (
                       <DeleteJobModal
                         deleteModalOpen={deleteModalOpen}
                         setDeleteModalOpen={setDeleteModalOpen}
@@ -408,7 +484,7 @@ const JobTrackerSectionTwo = () => {
               >
                 <div className="tabulator-table" role="rowgroup">
                   {/* TODO: Implement backend connection for dynamic key generation */}
-                  {/* <div key={`${item.userId}-${item.timestamp}`}></div> */}{" "}
+                  {/* <div key={`${item.userId}-${item.timestamp}`}></div> */}
                   {data.map((row) => (
                     <div
                       key={row.id}
