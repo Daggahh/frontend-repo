@@ -13,12 +13,14 @@ const Cta = () => {
             </div>
 
             <div className="cta-subtext">
-              <h2>Ready to level up your <br /> job application process?</h2>
+              <h2>
+                Ready to level up your <br /> job application process?
+              </h2>
             </div>
           </div>
         </div>
 
-        <div className="cta-right">
+        <div className="cta-right flex items-center justify-center">
           <div className="cta-section-btn">
             <Link to="/auth/signup">
               <button className="get-started-btn">Get Started Now</button>

@@ -140,3 +140,50 @@ dd a:hover::after {
   font-weight: 600;
   color: var(--primaryColor);
 }
+
+@media (max-width: 768px) {
+  .footer {
+    padding-top: 15.5%;
+  }
+
+  .footer-row {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    gap: 10px;
+    padding: 2rem 1.5rem;
+    padding-top: 0px;
+  }
+
+  .footer-2 {
+    justify-content: space-between;
+    gap: 80px;
+    width: 100%;
+  }
+
+  .footer-2 > div {
+    width: 50%;
+  }
+
+  .socials {
+    width: 100%;
+    align-items: center;
+  }
+
+  .footer-bottom {
+    background-color: #2e9cae;
+  }
+
+  .footer-row .logo h1 {
+    font-size: 32px;
+  }
+}
+
+@media (max-width: 576px) {
+  .footer-row {
+    padding: 2rem 1.5rem;
+  }
+}
+
+@media (max-width: 400px) {
+}

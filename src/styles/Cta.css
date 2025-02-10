@@ -15,11 +15,11 @@
 }
 
 .cta-left {
-  width: 50%;
+  width: 60%;
 }
 
 .cta-right {
-  width: 50%;
+  width: 40%;
 }
 
 .cta-left-wrap {
@@ -71,5 +71,85 @@ a {
 
   .entry-button a {
     font-size: 15px;
+  }
+}
+
+@media (max-width: 1145px) {
+  .cta-container {
+    padding: 80px;
+    gap: 100px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .cta-container {
+    padding: 60px;
+    gap: 80px;
+  }
+}
+
+@media (max-width: 991px) {
+  .cta-container {
+    padding: 50px;
+    gap: 30px;
+  }
+
+  .cta-left {
+    width: 70%;
+  }
+
+  .cta-right {
+    width: 35%;
+  }
+}
+
+@media (max-width: 768px) {
+  .cta-container {
+    padding: 30px;
+    gap: 25px;
+  }
+
+  .cta-section {
+    margin-inline-start: -50px;
+    margin-inline-end: -50px;
+  }
+
+  .cta-subtext h2 {
+    font-size: 1.7rem;
+  }
+
+  .cta-section-btn button {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 576px) {
+  .cta-section {
+    margin-inline-start: -30px;
+    margin-inline-end: -30px;
+  }
+
+  .cta-container {
+    padding: 30px;
+    gap: 30px;
+  }
+
+  .cta-subtext h2 {
+    font-size: 1rem;
+  }
+
+  .cta-section-btn button {
+    font-size: 11px;
+    padding: 10px 20px;
+  }
+
+  .cta-right {
+    width: 47%;
+  }
+}
+
+@media (max-width: 400px) {
+  .cta-subtext h2 {
+    font-size: 0.9rem;
   }
 }

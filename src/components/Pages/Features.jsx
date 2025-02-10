@@ -12,7 +12,7 @@ import "../../styles/Features.css";
 
 function FeatureItem({ icon, header, subtext, className }) {
   return (
-    <div className={`feature-item ${className}`}>
+    <div className={`feature-item p-[10px] shadow-lg rounded-lg ${className}`}>
       <div className="features-card ">
         <div className="mobile-ft-card">
           <div className="features-icon">{icon}</div>

@@ -57,3 +57,31 @@
   text-align: center;
   font-weight: 600;
 }
+
+@media (max-width: 768px) {
+  .mission-keypoints {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .mission-subheading {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 576px) {
+  .mission-subheading {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 400px) {
+  .mission-subheading {
+    font-size: 20px;
+  }
+
+  .keypoint h3 {
+    font-size: 0.9rem;
+  }
+}
