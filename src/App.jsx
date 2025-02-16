@@ -6,6 +6,8 @@ import Error from "./components/Pages/Error";
 import "./index.css";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import Pricing from "./components/Pages/Pricing";
+import ContactUs from "./components/Pages/ContactUs";
+import AboutUs from "./components/Dashboard/Pages/AboutUs";
 
 const Nav = lazy(() => import("./components/Pages/Nav"));
 const HeroSection = lazy(() => import("./components/Pages/HeroSection"));
@@ -86,6 +88,22 @@ function App() {
           element={
             <Suspense fallback={<Loader />}>
               <Pricing />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/contact"
+          element={
+            <Suspense fallback={<Loader />}>
+              <ContactUs />
+            </Suspense>
+          }
+        />
+         <Route
+          path="/about"
+          element={
+            <Suspense fallback={<Loader />}>
+              <AboutUs />
             </Suspense>
           }
         />

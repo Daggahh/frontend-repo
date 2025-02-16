@@ -40,9 +40,9 @@ const HeroSection = () => {
           <div className="hero-section-btn">
             <Link to="/auth/signup">
               <button className="get-started-btn">
-                <span class="shadow"></span>
-                <span class="edge"></span>
-                <span class="front text">Get Started! - It's 100% Free!</span>
+                <span className="hero-shadow"></span>
+                <span className="edge"></span>
+                <span className="front text">Get Started! - It's 100% Free!</span>
               </button>
             </Link>
           </div>

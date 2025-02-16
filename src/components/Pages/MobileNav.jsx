@@ -153,8 +153,7 @@ const MobileNav = ({ toggle }) => {
                 <div className="uui-navbar_dropdown-content">
                   <div className="navbar-megamenu_dropdown-content-left">
                     <div className="navbar-megamenu_dropdown-link-list-more">
-                      <a
-                        href="/tools/resume-builder"
+                      <div
                         className="navbar-megamenu_dropdown-link w-inline-block"
                         tabIndex="0"
                       >
@@ -199,9 +198,8 @@ const MobileNav = ({ toggle }) => {
                             to each application and applying to more jobs.
                           </div>
                         </div>
-                      </a>
-                      <a
-                        href="/tools/job-tracker"
+                      </div>
+                      <div
                         className="navbar-megamenu_dropdown-link w-inline-block"
                         tabIndex="0"
                       >
@@ -240,9 +238,8 @@ const MobileNav = ({ toggle }) => {
                             full job search, all in one place.
                           </div>
                         </div>
-                      </a>
-                      <a
-                        href="/tool/resume-bullet-point-generator"
+                      </div>
+                      <div
                         className="navbar-megamenu_dropdown-link w-inline-block"
                         tabIndex="0"
                       >
@@ -275,11 +272,10 @@ const MobileNav = ({ toggle }) => {
                             highlight your biggest career achievements.
                           </div>
                         </div>
-                      </a>
+                      </div>
                     </div>
                     <div className="navbar-megamenu_dropdown-link-list-more">
-                      <a
-                        href="/tool/cover-letter-generator"
+                      <div
                         className="navbar-megamenu_dropdown-link w-inline-block"
                         tabIndex="0"
                       >
@@ -319,9 +315,8 @@ const MobileNav = ({ toggle }) => {
                             letter in seconds.
                           </div>
                         </div>
-                      </a>
-                      <a
-                        href="/tool/resume-summary-generator"
+                      </div>
+                      <div
                         className="navbar-megamenu_dropdown-link w-inline-block"
                         tabIndex="0"
                       >
@@ -355,7 +350,7 @@ const MobileNav = ({ toggle }) => {
                             makes an impact.
                           </div>
                         </div>
-                      </a>
+                      </div>
                       <a
                         href="/tools"
                         className="navbar-megamenu_dropdown-link w-inline-block"

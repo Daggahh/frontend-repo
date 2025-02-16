@@ -1,8 +1,4 @@
-@import "tailwindcss/tailwind.css";
-@layer tailwind-base, antd; /* Ensure Ant Design comes after Tailwind base styles */
-@layer tailwind-base {
-  @tailwind base;
-}
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -203,6 +199,13 @@ a {
   }
 }
 
+@media (max-width: 768px) {
+  .jobjot-main-container {
+    max-width: calc(100% - 25px);
+    display: flex;
+    justify-content: center;
+  }
+}
 @media (min-width: 768px) {
   .jobjot-main-container {
     max-width: calc(100% - 25px);

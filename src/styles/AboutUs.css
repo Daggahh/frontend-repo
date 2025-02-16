@@ -1,0 +1,120 @@
+.s--margin-bottom--2rem h2 {
+  letter-spacing: -1px;
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 2.5rem;
+  font-weight: 600;
+  line-height: 1;
+  color: #012332;
+  text-align: center;
+}
+
+.s--margin-bottom--2rem .t--text--size-medium {
+  text-align: center;
+}
+
+.framer-1c45rnv {
+  place-content: center flex-start;
+  align-items: center;
+  aspect-ratio: 14.6667 / 1;
+  display: flex;
+  flex: 0 0 auto;
+  flex-flow: column;
+  gap: 58px;
+  height: 7px;
+  padding: 0px;
+  position: relative;
+  width: 109px;
+}
+
+.value-flex {
+  place-content: center flex-start;
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  flex-flow: column;
+  gap: 21px;
+  height: min-content;
+  overflow: visible;
+  padding: 0px;
+  position: relative;
+  width: min-content;
+}
+
+.value-cont {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 32px;
+}
+
+@media (max-width: 1024px) {
+}
+
+@media screen and (max-width: 991px) {
+  .s--margin-bottom--2rem h2 {
+    font-size: 2rem;
+  }
+
+  .values-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .value-cont {
+    max-width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    padding: 32px;
+  }
+
+  .mobile-v-text {
+    text-align: start;
+  }
+
+  .value-flex {
+    place-content: center flex-start;
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    flex-flow: column;
+    gap: 21px;
+    height: min-content;
+    overflow: visible;
+    padding: 0px;
+    position: relative;
+    width: min-content;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .s--margin-bottom--2rem h2 {
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
+
+  .max-w-3xl {
+    max-width: 90%;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .values-container {
+    padding: 0 !important;
+  }
+
+  .value-cont {
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    align-items: flex-start;
+  }
+
+  .value-flex {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}

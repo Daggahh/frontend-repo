@@ -89,7 +89,7 @@ function Features() {
   ];
 
   return (
-    <section className="features-main-section !shadow-xl" ref={sectionRef}>
+    <section className="features-main-section" ref={sectionRef}>
       <div className="features-container">
         <div className="features-main-text">
           <div style={{ position: "relative" }}>

@@ -1,22 +1,31 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Search, AccountCircle, Build, Extension, Help, ExpandMore, ExpandLess } from "@mui/icons-material";
+import {
+  Search,
+  AccountCircle,
+  Build,
+  Extension,
+  Help,
+  ExpandMore,
+  ExpandLess,
+} from "@mui/icons-material";
+import FooterBottom from "../../Pages/FooterBottom";
 
 const PageContainer = styled.div`
   font-family: Arial, sans-serif;
   color: #333;
-  background-color: #e9f3f3; 
+  background-color: #f5f9f9;
 `;
 
 const Header = styled.header`
-  background-color: #99bfbf;
+  background-color: #012332;
   padding: 20px;
   text-align: center;
   color: white;
 `;
 
 const SearchBarContainer = styled.div`
-  background-color: #99bfbf;
+  background-color: #012332;
   padding: 30px 20px;
   text-align: center;
 `;
@@ -60,6 +69,15 @@ const CategoriesContainer = styled.div`
   justify-content: space-between;
   max-width: 1000px;
   margin: 20px auto;
+
+  @media (max-width: 768px) {
+    justify-content: center;
+    gap: 20px;
+
+    & > * {
+      flex: 0 1 calc(50% - 10px); /* Two per row, accounting for spacing */
+    }
+  }
 `;
 
 const CategoryCard = styled.div`
@@ -79,7 +97,7 @@ const CategoryCard = styled.div`
 `;
 
 const Icon = styled.div`
-  color: #007bff;
+  color: #012332;
   font-size: 36px;
   margin-bottom: 10px;
 `;
@@ -116,15 +134,6 @@ const Answer = styled.div`
   margin-top: 10px;
   color: #555;
 `;
-
-const Footer = styled.footer`
-  margin-top: 30px;
-  padding: 10px;
-  text-align: center;
-  background: #99bfbf; 
-  border-top: 1px solid #ddd;
-`;
-
 const SupportCenter = () => {
   const [faqs, setFaqs] = useState([
     {
@@ -214,9 +223,7 @@ const SupportCenter = () => {
 
   const toggleFAQ = (id) => {
     setFaqs(
-      faqs.map((faq) =>
-        faq.id === id ? { ...faq, isOpen: !faq.isOpen } : faq
-      )
+      faqs.map((faq) => (faq.id === id ? { ...faq, isOpen: !faq.isOpen } : faq))
     );
   };
 
@@ -228,9 +235,8 @@ const SupportCenter = () => {
 
   return (
     <PageContainer>
-    
       <Header>
-        <h1>Welcome to Jobdott Support Center!</h1>
+        <h1>Welcome to JobJott Support Center!</h1>
       </Header>
 
       <SearchBarContainer>
@@ -255,7 +261,9 @@ const SupportCenter = () => {
             </Icon>
             Getting Started
           </CategoryCard>
-          <CategoryCard onClick={() => setSelectedCategory("Account Management")}>
+          <CategoryCard
+            onClick={() => setSelectedCategory("Account Management")}
+          >
             <Icon>
               <AccountCircle />
             </Icon>
@@ -291,9 +299,7 @@ const SupportCenter = () => {
         </FAQContainer>
       </Section>
 
-      <Footer>
-        Jobdott &copy; 2024
-      </Footer>
+      <FooterBottom />
     </PageContainer>
   );
 };
